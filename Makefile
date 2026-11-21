@@ -15,7 +15,11 @@ sched:
 	@mkdir -p build results
 	cp $(SCX)/build/bin/burstsched build/
 
-utils: build/setext build/wakeup_lat
+utils: build/setext build/wakeup_lat build/phase_change
+
+build/phase_change: workloads/phase_change.c
+	@mkdir -p build
+	$(CC) -O2 -Wall -o $@ $<
 
 build/setext: utils/setext.c
 	@mkdir -p build

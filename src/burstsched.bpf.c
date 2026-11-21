@@ -40,7 +40,8 @@ UEI_DEFINE(uei);
 
 #define MSEC		(1000ULL * 1000)
 #define SLICE_MIN	(1 * MSEC)
-#define SLICE_MAX	(20 * MSEC)
+#define SLICE_MAX	(40 * MSEC)
+#define ONGOING_MIN	(4 * MSEC)
 
 /* exported to user space through .bss */
 u64 max_wait_ns;
@@ -162,6 +163,19 @@ static u64 get_pred(struct task_struct *p, struct bs_task_ctx *c, u32 *by,
 		pred = c->pred;
 		dev = c->dev;
 		*by = BS_PLACED_EWMA;
+	}
+
+	/*
+	 * A burst still in progress is hard evidence: a task that has already
+	 * run ONGOING_MIN without blocking is CPU-bound right now, even if it
+	 * has never blocked (so has no history) or its history says otherwise.
+	 */
+	if ((use_ewma || use_learned) && c->burst_acc >= ONGOING_MIN &&
+	    c->burst_acc > pred) {
+		pred = c->burst_acc;
+		dev = 0;
+		if (*by == BS_PLACED_REACTIVE)
+			*by = BS_PLACED_EWMA;
 	}
 
 	if (!pred) {
