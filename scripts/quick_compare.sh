@@ -36,7 +36,9 @@ full)    PFLAG="";   SUF="_full" ;;
 *) echo "unknown MODE=$MODE"; exit 1 ;;
 esac
 
-DUR=$(( WLEN + 5 ))
+# hogs must outlast the workload (wakeup_lat runs longer when it is delayed a lot);
+# they are stopped with SIGINT right after the workload finishes
+DUR=$(( WLEN * 2 + 10 ))
 TAG="${WORKLOAD}${SUF}"
 OUT=results/summary_${TAG}.csv
 mkdir -p results
@@ -105,6 +107,7 @@ run() {
 	local line fair
 	line=$(./build/setext "${WCMD[@]}" -o "results/lat_${TAG}_${name}_${rep}.csv")
 	fair=$(jain)                      # hogs are still running here
+	kill -INT "$H" 2>/dev/null        # stress-ng stops and writes its metrics
 	wait "$H" 2>/dev/null
 	local c1; c1=$(ctxt)
 

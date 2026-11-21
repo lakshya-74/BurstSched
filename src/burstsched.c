@@ -313,6 +313,7 @@ restart:
 
 	if (partial)
 		skel->struct_ops.burst_ops->flags |= SCX_OPS_SWITCH_PARTIAL;
+	skel->rodata->loader_tgid = getpid();
 
 	SCX_OPS_LOAD(skel, burst_ops, burstsched, uei);
 	link = SCX_OPS_ATTACH(skel, burst_ops, burstsched);
@@ -348,10 +349,17 @@ restart:
 	time_t last = time(NULL);
 
 	while (!exit_req && !UEI_EXITED(skel, uei)) {
-		if (rb)
-			ring_buffer__poll(rb, 100);
-		else
+		if (rb) {
+			/*
+			 * Events are submitted without wakeup (batched), so drain
+			 * every 2 ms; poll still returns early if the kernel forces
+			 * a wakeup because a lot of data is pending.
+			 */
+			ring_buffer__poll(rb, 2);
+			ring_buffer__consume(rb);
+		} else {
 			usleep(100 * 1000);
+		}
 
 		if (!quiet && time(NULL) != last) {
 			__u64 s[BS_NR_STATS];

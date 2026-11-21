@@ -32,6 +32,7 @@ const volatile bool use_conf;
 const volatile bool use_slices;
 const volatile bool use_preempt;
 const volatile bool use_percpu;		/* per-CPU queues + burst-aware placement */
+const volatile u32  loader_tgid;	/* don't log the loader's own bursts (feedback loop) */
 const volatile u64  aging_ns   = 100ULL * 1000 * 1000;	/* 100 ms */
 const volatile u32  conf_pct   = 50;	/* confident if dev < 50% of pred */
 const volatile u32  ewma_shift = 3;	/* alpha = 1/8 */
@@ -43,6 +44,7 @@ UEI_DEFINE(uei);
 #define SLICE_MIN	(1 * MSEC)
 #define SLICE_MAX	(40 * MSEC)
 #define ONGOING_MIN	(4 * MSEC)
+#define RB_WAKE_BYTES	(1 << 20)
 
 /* per-CPU mode: DSQ id of (cpu, level) */
 #define PCPU_BASE	1024ULL
@@ -280,6 +282,13 @@ static void burst_done(struct task_struct *p, struct bs_task_ctx *c, u64 now)
 	if (c->nr_bursts < 0xffffffff)
 		c->nr_bursts++;
 
+	/*
+	 * Logging the loader's own bursts would wake the loader, which then
+	 * blocks again, producing another event: an endless loop in full mode.
+	 */
+	if (loader_tgid && p->tgid == loader_tgid)
+		goto out;
+
 	e = bpf_ringbuf_reserve(&events, sizeof(*e), 0);
 	if (e) {
 		e->ts_ns = now;
@@ -293,11 +302,13 @@ static void burst_done(struct task_struct *p, struct bs_task_ctx *c, u64 now)
 		e->placed_by = c->placed_by;
 		e->pad = 0;
 		bpf_probe_read_kernel_str(e->comm, sizeof(e->comm), p->comm);
-		bpf_ringbuf_submit(e, 0);
+		/* batch: the loader drains every 2 ms; only wake it if a lot is pending */
+		bpf_ringbuf_submit(e, bpf_ringbuf_query(&events, BPF_RB_AVAIL_DATA) >
+				      RB_WAKE_BYTES ? BPF_RB_FORCE_WAKEUP : BPF_RB_NO_WAKEUP);
 	} else {
 		stat_inc(BS_ST_EV_DROPPED);
 	}
-
+out:
 	c->burst_acc = 0;
 	c->sleep_start = now;
 }
@@ -433,6 +444,23 @@ void BPF_STRUCT_OPS(burst_enqueue, struct task_struct *p, u64 enq_flags)
 
 		if (cpu < 0 || cpu >= BS_MAX_CPUS)
 			cpu = 0;
+
+		/*
+		 * Re-enqueue of a long task (slice expired / preempted): CPU hogs
+		 * never wake up, so balance them here too ("power of two
+		 * choices"). Only tasks that may migrate.
+		 */
+		if (!(enq_flags & SCX_ENQ_WAKEUP) && lvl >= 2 && nr_cpus > 1 &&
+		    p->nr_cpus_allowed > 1 && !p->migration_disabled) {
+			s32 alt = bpf_get_prandom_u32() % nr_cpus;
+
+			if (alt != cpu && alt < BS_MAX_CPUS &&
+			    bpf_cpumask_test_cpu(alt, p->cpus_ptr) &&
+			    cpu_load(alt) + 1 < cpu_load(cpu)) {
+				cpu = alt;
+				stat_inc(BS_ST_REMOTE);
+			}
+		}
 		scx_bpf_dsq_insert(p, PCPU_DSQ(cpu, lvl), slice, enq_flags);
 
 		/* an idle CPU somewhere? wake it so it can steal this task */
