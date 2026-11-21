@@ -30,6 +30,7 @@ const char help_fmt[] =
 "  -c          Confidence gating: only act on stable predictions\n"
 "  -s          Predicted time slices (1.25 x predicted burst)\n"
 "  -w          Wakeup preemption by short predicted burst\n"
+"  -P          Per-CPU queues, burst-aware placement and work stealing\n"
 "  -a MS       Aging threshold in ms (default 100)\n"
 "  -t PCT      Confidence threshold: dev < PCT%% of prediction (default 50)\n"
 "  -o FILE     Write every finished burst to FILE (CSV)\n"
@@ -259,7 +260,7 @@ restart:
 	optind = 1;
 	skel = SCX_OPS_OPEN(burst_ops, burstsched);
 
-	while ((opt = getopt(argc, argv, "pelm:cswa:t:o:qvh")) != -1) {
+	while ((opt = getopt(argc, argv, "pelm:cswPa:t:o:qvh")) != -1) {
 		switch (opt) {
 		case 'p':
 			partial = true;
@@ -282,6 +283,9 @@ restart:
 			break;
 		case 'w':
 			skel->rodata->use_preempt = true;
+			break;
+		case 'P':
+			skel->rodata->use_percpu = true;
 			break;
 		case 'a':
 			skel->rodata->aging_ns = strtoull(optarg, NULL, 0) * 1000000ULL;
@@ -315,11 +319,11 @@ restart:
 	learned_fd = bpf_map__fd(skel->maps.learned);
 	memset(htab, 0, sizeof(htab));
 
-	printf("burstsched loaded: partial=%d ewma=%d learned=%d model=%s conf=%d slices=%d preempt=%d aging=%llums\n",
+	printf("burstsched loaded: partial=%d ewma=%d learned=%d model=%s conf=%d slices=%d preempt=%d percpu=%d aging=%llums\n",
 	       partial, skel->rodata->use_ewma, skel->rodata->use_learned,
 	       model_path ? model_path : "none",
 	       skel->rodata->use_conf, skel->rodata->use_slices,
-	       skel->rodata->use_preempt,
+	       skel->rodata->use_preempt, skel->rodata->use_percpu,
 	       (unsigned long long)(skel->rodata->aging_ns / 1000000ULL));
 
 	if (csv_path) {
@@ -356,12 +360,12 @@ restart:
 			read_stats(skel, s);
 			printf("local=%llu enq=%llu L0=%llu L1=%llu L2=%llu L3=%llu "
 			       "pred=%llu react=%llu aged=%llu preempt=%llu "
-			       "maxwait=%.2fms drop=%llu learned_upd=%llu\n",
+			       "maxwait=%.2fms drop=%llu learned_upd=%llu steal=%llu remote=%llu\n",
 			       s[BS_ST_LOCAL], s[BS_ST_ENQ], s[BS_ST_L0], s[BS_ST_L1],
 			       s[BS_ST_L2], s[BS_ST_L3], s[BS_ST_PRED_PLACED],
 			       s[BS_ST_REACT_PLACED], s[BS_ST_AGED], s[BS_ST_PREEMPT],
 			       skel->bss->max_wait_ns / 1e6, s[BS_ST_EV_DROPPED],
-			       nr_learned_updates);
+			       nr_learned_updates, s[BS_ST_STEAL], s[BS_ST_REMOTE]);
 			fflush(stdout);
 		}
 	}
@@ -377,11 +381,11 @@ restart:
 		__u64 s[BS_NR_STATS];
 
 		read_stats(skel, s);
-		printf("final: maxwait_ms=%.3f aged=%llu preempt=%llu pred=%llu react=%llu drop=%llu learned_upd=%llu\n",
+		printf("final: maxwait_ms=%.3f aged=%llu preempt=%llu pred=%llu react=%llu drop=%llu learned_upd=%llu steal=%llu remote=%llu\n",
 		       skel->bss->max_wait_ns / 1e6, s[BS_ST_AGED],
 		       s[BS_ST_PREEMPT], s[BS_ST_PRED_PLACED],
 		       s[BS_ST_REACT_PLACED], s[BS_ST_EV_DROPPED],
-		       nr_learned_updates);
+		       nr_learned_updates, s[BS_ST_STEAL], s[BS_ST_REMOTE]);
 		fflush(stdout);
 	}
 

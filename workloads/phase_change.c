@@ -124,17 +124,27 @@ int main(int argc, char **argv)
 		}
 	}
 
+	/*
+	 * Recovery = first `recov` wakeups after a CPU phase, in cycles >= 1
+	 * ("warm": the task has history). Cycle 0 wakeup 0 is the cold start:
+	 * the task has never slept before, so no history-based predictor can
+	 * anticipate it. It is reported separately.
+	 */
+	double cold = 0;
+
 	for (i = 0; i < n; i++) {
 		all[i] = r[i].lat;
-		if (r[i].idx < recov)
+		if (r[i].cycle >= 1 && r[i].idx < recov)
 			rv[nr++] = r[i].lat;
+		if (r[i].cycle == 0 && r[i].idx == 0)
+			cold = r[i].lat / 1e3;
 	}
 
 	double p50, p99, mx, rp50, rp99, rmx;
 
 	pct(all, n, &p50, &p99, &mx);
 	pct(rv, nr, &rp50, &rp99, &rmx);
-	printf("phase latency (us): p50=%.1f p99=%.1f max=%.1f rec_p50=%.1f rec_p99=%.1f rec_max=%.1f (n=%d, recov=%d)\n",
-	       p50, p99, mx, rp50, rp99, rmx, n, nr);
+	printf("phase latency (us): p50=%.1f p99=%.1f max=%.1f rec_p50=%.1f rec_p99=%.1f rec_max=%.1f cold=%.1f (n=%d, recov=%d)\n",
+	       p50, p99, mx, rp50, rp99, rmx, cold, n, nr);
 	return 0;
 }

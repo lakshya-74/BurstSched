@@ -31,6 +31,7 @@ const volatile bool use_learned;
 const volatile bool use_conf;
 const volatile bool use_slices;
 const volatile bool use_preempt;
+const volatile bool use_percpu;		/* per-CPU queues + burst-aware placement */
 const volatile u64  aging_ns   = 100ULL * 1000 * 1000;	/* 100 ms */
 const volatile u32  conf_pct   = 50;	/* confident if dev < 50% of pred */
 const volatile u32  ewma_shift = 3;	/* alpha = 1/8 */
@@ -43,10 +44,16 @@ UEI_DEFINE(uei);
 #define SLICE_MAX	(40 * MSEC)
 #define ONGOING_MIN	(4 * MSEC)
 
+/* per-CPU mode: DSQ id of (cpu, level) */
+#define PCPU_BASE	1024ULL
+#define PCPU_DSQ(cpu, lvl) (PCPU_BASE + (u64)(cpu) * BS_NR_LEVELS + (lvl))
+
 /* exported to user space through .bss */
 u64 max_wait_ns;
+u32 nr_cpus;
 
 static u64 last_served[BS_NR_LEVELS];
+static u64 pc_last_served[BS_MAX_CPUS * BS_NR_LEVELS];
 
 /* ---- maps ---- */
 struct bs_task_ctx {
@@ -295,16 +302,88 @@ static void burst_done(struct task_struct *p, struct bs_task_ctx *c, u64 now)
 	c->sleep_start = now;
 }
 
+/* ---- per-CPU mode helpers ---- */
+
+/* number of tasks queued on a CPU's own levels */
+static s32 cpu_load(s32 cpu)
+{
+	s32 n = 0, q;
+	u32 l;
+
+	for (l = 0; l < BS_NR_LEVELS; l++) {
+		q = scx_bpf_dsq_nr_queued(PCPU_DSQ(cpu, l));
+		if (q > 0)
+			n += q;
+	}
+	return n;
+}
+
+/*
+ * Serve this CPU's own queues (with aging), then steal: highest level first,
+ * nearest CPU first. Tasks a CPU may not run are skipped by the kernel.
+ */
+static void dispatch_percpu(s32 cpu, u64 now)
+{
+	u32 l, idx;
+	int i, k;
+
+	if (cpu < 0 || cpu >= BS_MAX_CPUS)
+		return;
+
+	for (l = BS_NR_LEVELS - 1; l > 0; l--) {
+		u64 dsq = PCPU_DSQ(cpu, l);
+
+		idx = (u32)cpu * BS_NR_LEVELS + l;
+		if (idx >= BS_MAX_CPUS * BS_NR_LEVELS)
+			return;
+		if (scx_bpf_dsq_nr_queued(dsq) <= 0) {
+			pc_last_served[idx] = now;
+			continue;
+		}
+		if (now - pc_last_served[idx] > aging_ns &&
+		    scx_bpf_dsq_move_to_local(dsq)) {
+			pc_last_served[idx] = now;
+			stat_inc(BS_ST_L0 + l);
+			return;
+		}
+	}
+
+	for (l = 0; l < BS_NR_LEVELS; l++) {
+		idx = (u32)cpu * BS_NR_LEVELS + l;
+		if (idx >= BS_MAX_CPUS * BS_NR_LEVELS)
+			return;
+		if (scx_bpf_dsq_move_to_local(PCPU_DSQ(cpu, l))) {
+			pc_last_served[idx] = now;
+			stat_inc(BS_ST_L0 + l);
+			return;
+		}
+	}
+
+	/* work stealing */
+	bpf_for(k, 0, BS_NR_LEVELS) {
+		bpf_for(i, 1, nr_cpus) {
+			s32 v = (cpu + i) % nr_cpus;
+			u64 dsq = PCPU_DSQ(v, k);
+
+			if (scx_bpf_dsq_nr_queued(dsq) > 0 &&
+			    scx_bpf_dsq_move_to_local(dsq)) {
+				stat_inc(BS_ST_STEAL);
+				return;
+			}
+		}
+	}
+}
+
 /* ---- sched_ext callbacks ---- */
 s32 BPF_STRUCT_OPS(burst_select_cpu, struct task_struct *p, s32 prev_cpu,
 		   u64 wake_flags)
 {
+	struct bs_task_ctx *c = lookup_ctx(p);
 	bool is_idle = false;
 	s32 cpu;
 
 	cpu = scx_bpf_select_cpu_dfl(p, prev_cpu, wake_flags, &is_idle);
 	if (is_idle) {
-		struct bs_task_ctx *c = lookup_ctx(p);
 		u32 lvl = 0;
 		u64 slice = SCX_SLICE_DFL;
 
@@ -312,6 +391,25 @@ s32 BPF_STRUCT_OPS(burst_select_cpu, struct task_struct *p, s32 prev_cpu,
 			place(p, c, &lvl, &slice);
 		stat_inc(BS_ST_LOCAL);
 		scx_bpf_dsq_insert(p, SCX_DSQ_LOCAL, slice, 0);
+		return cpu;
+	}
+
+	/*
+	 * Per-CPU mode, no idle CPU: short-burst tasks stay on their CPU
+	 * (cache affinity; they run briefly). Long-burst tasks are balanced
+	 * with "power of two choices": move to a random allowed CPU if its
+	 * queue is clearly shorter.
+	 */
+	if (use_percpu && c && c->cur_level >= 2 && nr_cpus > 1 &&
+	    cpu >= 0 && cpu < BS_MAX_CPUS) {
+		s32 alt = bpf_get_prandom_u32() % nr_cpus;
+
+		if (alt != cpu && alt < BS_MAX_CPUS &&
+		    bpf_cpumask_test_cpu(alt, p->cpus_ptr) &&
+		    cpu_load(alt) + 1 < cpu_load(cpu)) {
+			stat_inc(BS_ST_REMOTE);
+			return alt;
+		}
 	}
 	return cpu;
 }
@@ -328,7 +426,22 @@ void BPF_STRUCT_OPS(burst_enqueue, struct task_struct *p, u64 enq_flags)
 	if (lvl >= BS_NR_LEVELS)
 		lvl = BS_NR_LEVELS - 1;
 
-	scx_bpf_dsq_insert(p, lvl, slice, enq_flags);
+	if (use_percpu) {
+		/* queue on the task's CPU (chosen by select_cpu) */
+		s32 cpu = scx_bpf_task_cpu(p);
+		s32 idle;
+
+		if (cpu < 0 || cpu >= BS_MAX_CPUS)
+			cpu = 0;
+		scx_bpf_dsq_insert(p, PCPU_DSQ(cpu, lvl), slice, enq_flags);
+
+		/* an idle CPU somewhere? wake it so it can steal this task */
+		idle = scx_bpf_pick_idle_cpu(p->cpus_ptr, 0);
+		if (idle >= 0 && idle != cpu)
+			scx_bpf_kick_cpu(idle, SCX_KICK_IDLE);
+	} else {
+		scx_bpf_dsq_insert(p, lvl, slice, enq_flags);
+	}
 
 	if (use_preempt && c && lvl == 0 && c->placed_by != BS_PLACED_REACTIVE &&
 	    (enq_flags & SCX_ENQ_WAKEUP))
@@ -339,6 +452,11 @@ void BPF_STRUCT_OPS(burst_dispatch, s32 cpu, struct task_struct *prev)
 {
 	u64 now = bpf_ktime_get_ns();
 	u32 i;
+
+	if (use_percpu) {
+		dispatch_percpu(cpu, now);
+		return;
+	}
 
 	/* aging: serve a lower level that has been starved for aging_ns */
 	for (i = BS_NR_LEVELS - 1; i > 0; i--) {
@@ -443,11 +561,31 @@ s32 BPF_STRUCT_OPS_SLEEPABLE(burst_init)
 	u32 i;
 	s32 ret;
 
+	int c, l;
+
+	nr_cpus = scx_bpf_nr_cpu_ids();
+	if (nr_cpus > BS_MAX_CPUS)
+		nr_cpus = BS_MAX_CPUS;
+
 	for (i = 0; i < BS_NR_LEVELS; i++) {
 		ret = scx_bpf_create_dsq(i, -1);
 		if (ret) {
 			scx_bpf_error("failed to create DSQ %u (%d)", i, ret);
 			return ret;
+		}
+	}
+
+	if (!use_percpu)
+		return 0;
+
+	bpf_for(c, 0, nr_cpus) {
+		bpf_for(l, 0, BS_NR_LEVELS) {
+			ret = scx_bpf_create_dsq(PCPU_DSQ(c, l), -1);
+			if (ret) {
+				scx_bpf_error("failed to create per-CPU DSQ cpu %d lvl %d (%d)",
+					      c, l, ret);
+				return ret;
+			}
 		}
 	}
 	return 0;

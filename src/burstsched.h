@@ -44,6 +44,8 @@ enum bs_stat_idx {
 	BS_ST_PRED_PLACED,		/* placed by prediction */
 	BS_ST_REACT_PLACED,	/* placed reactively */
 	BS_ST_EV_DROPPED,		/* ring buffer full */
+	BS_ST_STEAL,		/* per-CPU: task stolen from another CPU */
+	BS_ST_REMOTE,		/* per-CPU: long task placed on a less loaded CPU */
 	BS_NR_STATS,
 };
 

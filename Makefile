@@ -4,9 +4,17 @@ KDIR ?= $(HOME)/burstsched-work/linux
 SCX  := $(KDIR)/tools/sched_ext
 SRCS := burstsched.bpf.c burstsched.c burstsched.h
 
-.PHONY: all sched utils clean
+.PHONY: all sched utils baselines clean
 
-all: sched utils
+all: sched utils baselines
+
+# scx_simple: the bundled minimal sched_ext scheduler, used as a baseline
+baselines: build/scx_simple
+
+build/scx_simple: | sched
+	$(MAKE) -C $(SCX) scx_simple
+	@mkdir -p build
+	cp $(SCX)/build/bin/scx_simple build/
 
 sched:
 	@for f in $(SRCS); do ln -sf $(CURDIR)/src/$$f $(SCX)/$$f; done
