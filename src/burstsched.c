@@ -56,20 +56,34 @@ static void sigint_handler(int sig)
 /* ---------------- learned predictor (decision tree) ---------------- */
 
 /*
- * Features, computed after each finished burst t of a task. MUST match
- * predictor/train.py:features().
- *   f0 = burst_t, f1 = sleep before burst_t, f2 = EWMA after burst_t,
- *   f3 = burst_{t-1}, f4 = sleep before burst_{t-1}     (all ns, 0 if unknown)
+ * Scale-free candidate selector. After each finished burst t of a task, a
+ * decision tree picks which history estimate to trust for burst t+1:
+ *   candidate 0 = b1 (burst_t), 1 = EWMA_t, 2 = b2 (burst_{t-1})
+ * from log-ratio features (L(x) ~ log2(x+1)):
+ *   f0 = L(b1)-L(ewma), f1 = L(b1)-L(b2), f2 = L(s1)-L(b1),
+ *   f3 = L(s2)-L(b2),   f4 = L(s1)-L(s2)
+ * where s1/s2 are the sleeps before b1/b2. MUST match predictor/train.py.
  */
-#define NFEAT 5
+#define NFEAT	5
+#define NCAND	3
 
 struct tnode {
 	int feat;		/* -1 for a leaf */
 	double thr;
 	int left, right;
-	double val_ns;		/* leaf prediction */
-	double dev_ns;		/* leaf expected error */
+	int cls;		/* chosen candidate */
+	double relerr;		/* median relative error of that choice */
 };
+
+/* approximate log2(x+1); MUST match predictor/train.py:L() exactly */
+static double flog2(__u64 x)
+{
+	__u64 v = x + 1, p;
+	int n = 63 - __builtin_clzll(v);
+
+	p = 1ULL << n;
+	return n + (double)(v - p) / (double)p;
+}
 
 static struct tnode *tree;
 static int ntree;
@@ -96,9 +110,10 @@ static int load_model(const char *path)
 	for (i = 0; i < ntree; i++) {
 		struct tnode *t = &tree[i];
 
-		if (fscanf(f, "%d %lf %d %d %lf %lf", &t->feat, &t->thr,
-			   &t->left, &t->right, &t->val_ns, &t->dev_ns) != 6 ||
-		    t->feat >= NFEAT || t->left >= ntree || t->right >= ntree) {
+		if (fscanf(f, "%d %lf %d %d %d %lf", &t->feat, &t->thr,
+			   &t->left, &t->right, &t->cls, &t->relerr) != 6 ||
+		    t->feat >= NFEAT || t->left >= ntree || t->right >= ntree ||
+		    t->cls < 0 || t->cls >= NCAND) {
 			fprintf(stderr, "bad model node %d\n", i);
 			fclose(f);
 			return -1;
@@ -109,14 +124,13 @@ static int load_model(const char *path)
 	return 0;
 }
 
-static void tree_predict(const double *x, double *val, double *dev)
+static const struct tnode *tree_leaf(const double *x)
 {
 	int i = 0, guard = 0;
 
 	while (tree[i].feat >= 0 && tree[i].left >= 0 && guard++ < 64)
 		i = x[tree[i].feat] <= tree[i].thr ? tree[i].left : tree[i].right;
-	*val = tree[i].val_ns;
-	*dev = tree[i].dev_ns;
+	return &tree[i];
 }
 
 /* per-task history, direct-mapped by pid */
@@ -136,7 +150,9 @@ static void learn_event(const struct bs_burst_event *e)
 {
 	struct hist *h = &htab[e->pid & (HSZ - 1)];
 	struct bs_learned_pred lp;
-	double x[NFEAT], val, dev;
+	const struct tnode *leaf;
+	double x[NFEAT];
+	__u64 cand[NCAND], pred;
 	__u32 pid = e->pid;
 
 	if (h->pid != e->pid) {
@@ -155,15 +171,24 @@ static void learn_event(const struct bs_burst_event *e)
 		h->ewma -= (h->ewma - h->b1) >> 3;
 	h->n++;
 
-	x[0] = h->b1;
-	x[1] = h->s1;
-	x[2] = h->ewma;
-	x[3] = h->b2;
-	x[4] = h->s2;
-	tree_predict(x, &val, &dev);
+	/* need two bursts of history (train.py: i >= 1) */
+	if (h->n < 2)
+		return;
 
-	lp.pred_ns = val < 1000 ? 1000 : (__u64)val;
-	lp.dev_ns = dev < 0 ? 0 : (__u64)dev;
+	x[0] = flog2(h->b1) - flog2(h->ewma);
+	x[1] = flog2(h->b1) - flog2(h->b2);
+	x[2] = flog2(h->s1) - flog2(h->b1);
+	x[3] = flog2(h->s2) - flog2(h->b2);
+	x[4] = flog2(h->s1) - flog2(h->s2);
+	leaf = tree_leaf(x);
+
+	cand[0] = h->b1;
+	cand[1] = h->ewma;
+	cand[2] = h->b2;
+	pred = cand[leaf->cls];
+
+	lp.pred_ns = pred < 1000 ? 1000 : pred;
+	lp.dev_ns = (__u64)(lp.pred_ns * (leaf->relerr < 0 ? 0 : leaf->relerr));
 	if (!bpf_map_update_elem(learned_fd, &pid, &lp, BPF_ANY))
 		nr_learned_updates++;
 }
