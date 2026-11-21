@@ -359,19 +359,22 @@ static void dispatch_percpu(s32 cpu, u64 now)
 		}
 	}
 
-	for (l = 0; l < BS_NR_LEVELS; l++) {
-		idx = (u32)cpu * BS_NR_LEVELS + l;
+	/*
+	 * Strict priority across levels, locality within a level: for each
+	 * level take from this CPU's own queue first (cache-warm), otherwise
+	 * steal that level from the nearest CPU, before looking at a lower
+	 * level. A CPU whose hog queue is empty thus pulls a hog from a busier
+	 * CPU, which keeps the load balanced even when no CPU is ever idle.
+	 */
+	bpf_for(k, 0, BS_NR_LEVELS) {
+		idx = (u32)cpu * BS_NR_LEVELS + (u32)k;
 		if (idx >= BS_MAX_CPUS * BS_NR_LEVELS)
 			return;
-		if (scx_bpf_dsq_move_to_local(PCPU_DSQ(cpu, l))) {
+		if (scx_bpf_dsq_move_to_local(PCPU_DSQ(cpu, k))) {
 			pc_last_served[idx] = now;
-			stat_inc(BS_ST_L0 + l);
+			stat_inc(BS_ST_L0 + k);
 			return;
 		}
-	}
-
-	/* work stealing */
-	bpf_for(k, 0, BS_NR_LEVELS) {
 		bpf_for(i, 1, nr_cpus) {
 			s32 v = (cpu + i) % nr_cpus;
 			u64 dsq = PCPU_DSQ(v, k);
@@ -417,7 +420,7 @@ s32 BPF_STRUCT_OPS(burst_select_cpu, struct task_struct *p, s32 prev_cpu,
 
 		if (alt != cpu && alt < BS_MAX_CPUS &&
 		    bpf_cpumask_test_cpu(alt, p->cpus_ptr) &&
-		    cpu_load(alt) + 1 < cpu_load(cpu)) {
+		    cpu_load(alt) < cpu_load(cpu)) {
 			stat_inc(BS_ST_REMOTE);
 			return alt;
 		}
@@ -456,7 +459,7 @@ void BPF_STRUCT_OPS(burst_enqueue, struct task_struct *p, u64 enq_flags)
 
 			if (alt != cpu && alt < BS_MAX_CPUS &&
 			    bpf_cpumask_test_cpu(alt, p->cpus_ptr) &&
-			    cpu_load(alt) + 1 < cpu_load(cpu)) {
+			    cpu_load(alt) < cpu_load(cpu)) {
 				cpu = alt;
 				stat_inc(BS_ST_REMOTE);
 			}
