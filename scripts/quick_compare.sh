@@ -15,7 +15,9 @@ WORKLOAD=${WORKLOAD:-wakeup}
 HOGS=${HOGS:-$((N * 2))}
 ITERS=${ITERS:-3000}
 REPS=${REPS:-3}
-CONFIGS=${CONFIGS:-"eevdf mlfq ewma ewma_conf ewma_conf_slc full"}
+DEFAULT_CONFIGS="eevdf mlfq ewma ewma_conf ewma_conf_slc full"
+[ -f models/tree.txt ] && DEFAULT_CONFIGS="$DEFAULT_CONFIGS learned"
+CONFIGS=${CONFIGS:-$DEFAULT_CONFIGS}
 
 case "$WORKLOAD" in
 wakeup) WCMD=(./build/wakeup_lat -n "$ITERS"); WLEN=$(( ITERS / 100 )) ;;
@@ -34,7 +36,8 @@ flags_for() {
 	ewma_conf_slc) echo "-e -c -s" ;;
 	full)          echo "-e -c -s -w" ;;
 	ewma_preempt)  echo "-e -s -w" ;;
-	learned)       echo "-l -c -s -w" ;;
+	learned)       echo "-m models/tree.txt -c -s -w" ;;
+	learned_noconf) echo "-m models/tree.txt -s -w" ;;
 	*)             echo "" ;;
 	esac
 }

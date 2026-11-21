@@ -77,7 +77,7 @@ struct {
 } events SEC(".maps");
 
 struct {
-	__uint(type, BPF_MAP_TYPE_HASH);
+	__uint(type, BPF_MAP_TYPE_LRU_HASH);
 	__uint(max_entries, 65536);
 	__type(key, u32);
 	__type(value, struct bs_learned_pred);
