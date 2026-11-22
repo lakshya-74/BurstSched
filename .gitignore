@@ -3,3 +3,4 @@ build/
 __pycache__/
 results/train_*.csv
 CLAUDE.md
+PROJECT_NOTES.md
