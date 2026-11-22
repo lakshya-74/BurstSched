@@ -7,7 +7,8 @@ from collections import OrderedDict
 
 path = sys.argv[1] if len(sys.argv) > 1 else "results/summary_wakeup.csv"
 want = ["p50_us", "p99_us", "max_us", "rec_p50_us", "rec_p99_us", "cold_us",
-        "hog_ops_per_s", "ctx_switches", "jain", "max_wait_ms", "preempts"]
+        "hog_ops_per_s", "ctx_switches", "jain", "max_wait_ms", "preempts",
+        "wm_max_ms", "wm_max_hog_ms", "wm_max_work_ms", "wm_p99_hog_ms"]
 
 groups = OrderedDict()
 with open(path) as f:

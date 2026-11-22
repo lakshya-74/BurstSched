@@ -2,7 +2,8 @@
 # bpftool, vmlinux.h and scx headers exactly match the running kernel.
 KDIR ?= $(HOME)/burstsched-work/linux
 SCX  := $(KDIR)/tools/sched_ext
-SRCS := burstsched.bpf.c burstsched.c burstsched.h
+SRCS := burstsched.bpf.c burstsched.c burstsched.h waitmon.bpf.c waitmon.c waitmon.h
+BPF_TARGETS := burstsched waitmon
 
 .PHONY: all sched utils baselines clean
 
@@ -16,14 +17,16 @@ build/scx_simple: | sched
 	@mkdir -p build
 	cp $(SCX)/build/bin/scx_simple build/
 
+# burstsched (scheduler) and waitmon (wait-time tracer) are BPF programs built
+# by the kernel's tools/sched_ext Makefile; always rebuilt from scratch.
 sched:
 	@for f in $(SRCS); do ln -sf $(CURDIR)/src/$$f $(SCX)/$$f; done
-	@rm -f $(SCX)/build/obj/sched_ext/burstsched* $(SCX)/build/include/burstsched* $(SCX)/build/bin/burstsched
-	$(MAKE) -C $(SCX) c-sched-targets=burstsched burstsched
+	@for t in $(BPF_TARGETS); do rm -f $(SCX)/build/obj/sched_ext/$$t* $(SCX)/build/include/$$t* $(SCX)/build/bin/$$t; done
+	$(MAKE) -C $(SCX) c-sched-targets="$(BPF_TARGETS)" $(BPF_TARGETS)
 	@mkdir -p build results
-	cp $(SCX)/build/bin/burstsched build/
+	for t in $(BPF_TARGETS); do cp $(SCX)/build/bin/$$t build/; done
 
-utils: build/setext build/wakeup_lat build/phase_change
+utils: build/setext build/wakeup_lat build/phase_change build/rr_bench
 
 build/phase_change: workloads/phase_change.c
 	@mkdir -p build
@@ -37,6 +40,10 @@ build/wakeup_lat: workloads/wakeup_lat.c
 	@mkdir -p build
 	$(CC) -O2 -Wall -o $@ $<
 
+build/rr_bench: workloads/rr_bench.c
+	@mkdir -p build
+	$(CC) -O2 -Wall -pthread -o $@ $<
+
 clean:
 	rm -rf build
-	rm -f $(SCX)/build/obj/sched_ext/burstsched* $(SCX)/build/include/burstsched* $(SCX)/build/bin/burstsched
+	for t in $(BPF_TARGETS); do rm -f $(SCX)/build/obj/sched_ext/$$t* $(SCX)/build/include/$$t* $(SCX)/build/bin/$$t; done

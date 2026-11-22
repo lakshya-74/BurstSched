@@ -23,6 +23,7 @@ Usage:
 import argparse
 import csv
 import glob
+import json
 import os
 from collections import defaultdict
 
@@ -106,12 +107,14 @@ def report(name, y, pred, mask=None):
     if mask is not None:
         y, pred = y[mask], pred[mask]
     if len(y) == 0:
-        return
+        return None
     lvl = np.mean([level_for_burst(a) == level_for_burst(b) for a, b in zip(y, pred)])
     w2 = np.mean((pred <= 2 * y) & (pred >= y / 2))
     err = np.median(np.abs(np.log2(pred + 1) - np.log2(y + 1)))
     print(f"    {name:<8} level-accuracy={lvl*100:5.1f}%  within-2x={w2*100:5.1f}%  "
           f"median|log2 err|={err:.2f}  (n={len(y)})")
+    return {"level_acc": float(lvl * 100), "within_2x": float(w2 * 100),
+            "median_log2_err": float(err), "n": int(len(y))}
 
 
 def evaluate(title, X, C, y, model):
@@ -121,14 +124,15 @@ def evaluate(title, X, C, y, model):
     shift = np.abs(X[:, 1]) >= 3
     print(f"\n{title}")
     print("  all samples:")
-    report("EWMA", y, C[:, 1])
-    report("last", y, C[:, 0])
-    report("learned", y, learned)
+    out = {"all": {"EWMA": report("EWMA", y, C[:, 1]),
+                   "last": report("last", y, C[:, 0]),
+                   "learned": report("learned", y, learned)}}
     if shift.any():
         print("  phase-change samples (last burst 8x+ different from previous):")
-        report("EWMA", y, C[:, 1], shift)
-        report("last", y, C[:, 0], shift)
-        report("learned", y, learned, shift)
+        out["phase_change"] = {"EWMA": report("EWMA", y, C[:, 1], shift),
+                               "last": report("last", y, C[:, 0], shift),
+                               "learned": report("learned", y, learned, shift)}
+    return out
 
 
 def expand(patterns):
@@ -147,6 +151,8 @@ def main():
     ap.add_argument("--min-leaf", type=int, default=30)
     ap.add_argument("--cap", type=int, default=3000,
                     help="max training samples per task (0 = no cap)")
+    ap.add_argument("--metrics", default=None,
+                    help="also write accuracy metrics to this JSON file")
     args = ap.parse_args()
 
     train_files = expand(args.train)
@@ -174,11 +180,13 @@ def main():
         c = C[m, cls[leaf]]
         relerr[leaf] = float(np.median(np.abs(y[m] - c) / np.maximum(c, 1)))
 
-    evaluate("training set", X, C, y, model)
+    metrics = {"train_samples": int(len(y)),
+               "training_set": evaluate("training set", X, C, y, model), "held_out": {}}
     for tf in test_files:
         Xt, Ct, yt = features(read_events([tf]))
         if len(yt):
-            evaluate(f"HELD-OUT: {os.path.basename(tf)}", Xt, Ct, yt, model)
+            metrics["held_out"][os.path.basename(tf)] = evaluate(
+                f"HELD-OUT: {os.path.basename(tf)}", Xt, Ct, yt, model)
 
     imp = sorted(zip(model.feature_importances_, FEATURES), reverse=True)
     print("\nfeature importance: " + ", ".join(f"{n}={v:.2f}" for v, n in imp))
@@ -193,6 +201,13 @@ def main():
             f.write(f"{feat} {thr:.9f} {int(t.children_left[i])} {int(t.children_right[i])} "
                     f"{int(cls[i])} {relerr[i]:.6f}\n")
     print(f"wrote {args.out}: {t.node_count} nodes, depth {model.get_depth()}")
+
+    if args.metrics:
+        metrics["feature_importance"] = {n: float(v) for v, n in imp}
+        os.makedirs(os.path.dirname(args.metrics) or ".", exist_ok=True)
+        with open(args.metrics, "w", newline="\n") as f:
+            json.dump(metrics, f, indent=2)
+        print(f"wrote {args.metrics}")
 
 
 if __name__ == "__main__":

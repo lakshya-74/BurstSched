@@ -72,6 +72,45 @@ Hog throughput is the same for every configuration (medians: wakeup test 63.4k-6
 bogo ops/s, phase test 62.9k-63.2k; within 0.5% in each test).
 Every BurstSched configuration is at least as fair as EEVDF (Jain >= 0.9998 vs 0.988-0.995).
 
+## How often does prediction miss, and what does it cost?
+
+From the burst logs of the same runs (`analysis/mispredict.py`, `data/final/mispredict.csv`).
+For each finished burst of the measured task, the queue level it was placed in is compared
+with the level its real burst length called for.
+
+| config | phase task: bursts queued too low | p99 queue wait of those bursts | wakeup task: placed correctly |
+|---|---|---|---|
+| mlfq | 1.5% | 23 ms | 100% |
+| ewma | 1.5% | 22 ms | 100% |
+| ewma_conf | 1.5% | 20 ms | 100% |
+| ewma_conf_slc | 1.6% | 49 ms | 100% |
+| full | 1.5% | 39 ms | 100% |
+| learned | **0.0%** | none | 100% |
+| learned_percpu | **0.0%** | none | 100% |
+
+- The 1.5% are the ~3 bursts after every CPU phase that reactive placement needs to climb
+  from the lowest level back to the top; each costs a full queue wait behind CPU hogs.
+  The learned predictor removes them.
+- The steady task is placed correctly by **every** configuration, yet its p99 latency varies
+  1000-fold (8.8 ms -> 11 us). Correct placement is not enough: without wakeup preemption a
+  correctly placed task still waits for a CPU hog's slice to end.
+
+## Predictor accuracy on held-out data
+
+`predictor/train.py --metrics data/final/predictor_eval.json`: share of next bursts placed in
+the correct queue level, on burst logs the predictor was never trained on.
+
+| held-out log | EWMA, all | learned, all | EWMA, after a behaviour change | learned, after a behaviour change |
+|---|---|---|---|---|
+| phase workload, partial mode | 74.8% | 97.2% | 0.0% | 68.9% |
+| wakeup workload, partial mode | 95.9% | 98.4% | 0.0% | 62.2% |
+| phase workload, full mode (all tasks) | 93.1% | 99.1% | 54.4% | 84.6% |
+| wakeup workload, full mode (all tasks) | 97.9% | 99.1% | 53.9% | 82.5% |
+
+## Figures
+
+`python analysis/plots.py` writes `figures/fig1_ablation` ... `fig6_misplacement` (PNG + SVG).
+
 ## Known limitations
 
 - **Cold start.** In partial mode (task joins the scheduler just before its first CPU phase)

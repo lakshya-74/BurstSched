@@ -28,6 +28,7 @@ CONFIGS=${CONFIGS:-$DEFAULT_CONFIGS}
 case "$WORKLOAD" in
 wakeup) WCMD=(./build/wakeup_lat -n "$ITERS"); WLEN=$(( ITERS / 100 )) ;;
 phase)  WCMD=(./build/phase_change -c 10 -C 2000 -I 2000); WLEN=40 ;;
+rr)     WCMD=(./build/rr_bench -c 4 -r 200 -d 30 -w 100); WLEN=30 ;;
 *) echo "unknown WORKLOAD=$WORKLOAD"; exit 1 ;;
 esac
 case "$MODE" in
@@ -61,7 +62,7 @@ flags_for() {
 
 NCONF=$(echo $CONFIGS | wc -w)
 echo "workload=$WORKLOAD mode=$MODE CPUs=$N hogs=$HOGS reps=$REPS configs=[$CONFIGS] (~$(( (DUR + 8) * NCONF * REPS / 60 )) min)"
-echo "config,rep,p50_us,p99_us,max_us,rec_p50_us,rec_p99_us,cold_us,hog_ops_per_s,ctx_switches,jain,max_wait_ms,preempts" > "$OUT"
+echo "config,rep,p50_us,p99_us,max_us,rec_p50_us,rec_p99_us,cold_us,hog_ops_per_s,ctx_switches,jain,max_wait_ms,preempts,wm_max_ms,wm_max_hog_ms,wm_max_work_ms,wm_p99_hog_ms" > "$OUT"
 
 ctxt() { awk '/^ctxt/ {print $2}' /proc/stat; }
 # getf LINE KEY -> value of " KEY=<num>" (space-anchored so p50 != rec_p50)
@@ -97,6 +98,14 @@ run() {
 		fi ;;
 	esac
 
+	# scheduler-independent wait monitor (same measurement for every scheduler)
+	local wlog="results/wait_${TAG}_${name}_${rep}.txt" W=""
+	if [ -x build/waitmon ]; then
+		./build/waitmon > "$wlog" 2>&1 &
+		W=$!
+		sleep 1
+	fi
+
 	local yaml="results/hog_${TAG}_${name}_${rep}.yaml"
 	local c0; c0=$(ctxt)
 	./build/setext stress-ng --cpu "$HOGS" --timeout "${DUR}s" --quiet \
@@ -107,6 +116,7 @@ run() {
 	local line fair
 	line=$(./build/setext "${WCMD[@]}" -o "results/lat_${TAG}_${name}_${rep}.csv")
 	fair=$(jain)                      # hogs are still running here
+	if [ -n "$W" ]; then kill -INT "$W"; wait "$W" 2>/dev/null; fi
 	kill -INT "$H" 2>/dev/null        # stress-ng stops and writes its metrics
 	wait "$H" 2>/dev/null
 	local c1; c1=$(ctxt)
@@ -119,10 +129,14 @@ run() {
 	ops=$(grep -m1 "bogo-ops-per-second-real-time" "$yaml" 2>/dev/null | awk '{print $2}')
 	fin=$(grep -m1 '^final:' "$log")
 	mw=$(getf "$fin" maxwait_ms); pre=$(getf "$fin" preempt)
+	local wl wmax whog wwork wp99
+	wl=$(grep -m1 '^waitmon:' "$wlog" 2>/dev/null)
+	wmax=$(getf "$wl" max_all_ms); whog=$(getf "$wl" max_hog_ms)
+	wwork=$(getf "$wl" max_work_ms); wp99=$(getf "$wl" p99_hog_ms)
 
-	echo "$name,$rep,${p50:-NA},${p99:-NA},${mx:-NA},${rp50:-NA},${rp99:-NA},${cold:-NA},${ops:-NA},$((c1 - c0)),${fair:-NA},${mw:-NA},${pre:-NA}" >> "$OUT"
-	printf "rep %d %-14s p50=%-8s p99=%-8s rec_p99=%-8s cold=%-9s hog_ops/s=%-7.0f ctxsw=%-7s jain=%-6s maxwait=%sms\n" \
-		"$rep" "$name" "${p50:-NA}" "${p99:-NA}" "${rp99:-NA}" "${cold:-NA}" "${ops:-0}" "$((c1 - c0))" "${fair:-NA}" "${mw:-NA}"
+	echo "$name,$rep,${p50:-NA},${p99:-NA},${mx:-NA},${rp50:-NA},${rp99:-NA},${cold:-NA},${ops:-NA},$((c1 - c0)),${fair:-NA},${mw:-NA},${pre:-NA},${wmax:-NA},${whog:-NA},${wwork:-NA},${wp99:-NA}" >> "$OUT"
+	printf "rep %d %-14s p50=%-8s p99=%-8s rec_p99=%-8s hog_ops/s=%-7.0f ctxsw=%-7s jain=%-6s wait_max(all/hog/work)=%s/%s/%sms\n" \
+		"$rep" "$name" "${p50:-NA}" "${p99:-NA}" "${rp99:-NA}" "${ops:-0}" "$((c1 - c0))" "${fair:-NA}" "${wmax:-NA}" "${whog:-NA}" "${wwork:-NA}"
 	sleep 2
 }
 
