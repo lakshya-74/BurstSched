@@ -24,7 +24,7 @@ echo "== 2. Internet"
 if curl -s -m 10 -o /dev/null https://github.com; then
 	ok "internet works"
 else
-	bad "no internet. Run ./scripts/fwlogin.sh, then run this script again"; exit 1
+	bad "no internet. Log in to your network (captive portal / proxy; see local/fwlogin.sh if you have it), then run this script again"; exit 1
 fi
 
 echo "== 3. Packages (needs sudo)"

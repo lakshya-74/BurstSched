@@ -1,4 +1,4 @@
-# Run 2: new lab PC (lab-pc), 2026-11-22
+# Run 2: lab PC B, 2026-11-22
 
 36 CPUs, 72 `stress-ng --cpu` hogs, partial mode, 3 reps, median (min-max).
 Code: includes "ongoing burst" evidence (hogs get predictions) and SLICE_MAX = 40 ms.

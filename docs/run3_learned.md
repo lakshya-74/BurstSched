@@ -1,4 +1,4 @@
-# Run 3: learned predictor (lab PC lab-pc), 2026-11-22
+# Run 3: learned predictor (lab PC B), 2026-11-22
 
 36 CPUs, 72 hogs, partial mode, 3 reps, median (min-max).
 mlfq/ewma/ewma_conf/ewma_conf_slc rows of the recovery table come from run 2 (same

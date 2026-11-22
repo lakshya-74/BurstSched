@@ -1,4 +1,4 @@
-# Run 1: wakeup workload (old lab PC lab-pc)
+# Run 1: wakeup workload (lab PC A)
 
 Date: 2026-11-21. Machine: HP Z4 G5, 36 CPUs, kernel 7.0.0-38-generic, partial mode.
 Workload: `wakeup_lat -n 3000` (10 ms sleep, 200 us burst) under 72 `stress-ng --cpu` hogs.

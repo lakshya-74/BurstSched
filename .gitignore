@@ -1,6 +1,14 @@
+# build output
 build/
 *.o
 __pycache__/
-results/train_*.csv
-CLAUDE.md
+
+# raw experiment output written by the scripts (kept locally);
+# the curated, published data lives in data/
+results/
+
+# private / machine-specific files (kept locally, never pushed)
 PROJECT_NOTES.md
+CLAUDE.md
+scripts/lab_host.txt
+local/
