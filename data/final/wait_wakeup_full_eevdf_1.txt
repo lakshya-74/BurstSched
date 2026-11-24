@@ -1,0 +1,2 @@
+waitmon: running, Ctrl+C to stop
+waitmon: max_all_ms=14.058 max_hog_ms=14.058 max_work_ms=5.044 max_other_ms=6.026 p99_all_ms=8.192 p99_hog_ms=8.192 n=339254 worst=stress-ng-cpu/48242

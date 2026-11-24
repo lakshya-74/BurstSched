@@ -139,6 +139,10 @@ def fig1():
     axes = np.atleast_1d(axes)
     for ax, (wl, col, title, xl) in zip(axes, panels):
         hbar_panel(ax, summary(wl), col, title, xl)
+    from matplotlib.patches import Patch
+    fig.legend(handles=[Patch(color=C_BURST, label="BurstSched with every feature enabled"),
+                        Patch(color=REST, label="baselines and intermediate steps")],
+               loc="upper right", ncol=2, fontsize=8.5, bbox_to_anchor=(0.99, 1.035))
     fig.suptitle("Ablation: each feature added in turn (72 CPU hogs on 36 CPUs, median of 3 runs)",
                  x=0.01, ha="left", fontsize=11.5, fontweight="semibold", color=INK, y=1.02)
     save(fig, "fig1_ablation")

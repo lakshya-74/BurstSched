@@ -130,7 +130,7 @@ run() {
 	fin=$(grep -m1 '^final:' "$log")
 	mw=$(getf "$fin" maxwait_ms); pre=$(getf "$fin" preempt)
 	local wl wmax whog wwork wp99
-	wl=$(grep -m1 '^waitmon:' "$wlog" 2>/dev/null)
+	wl=$(grep -m1 '^waitmon: max_all_ms=' "$wlog" 2>/dev/null)
 	wmax=$(getf "$wl" max_all_ms); whog=$(getf "$wl" max_hog_ms)
 	wwork=$(getf "$wl" max_work_ms); wp99=$(getf "$wl" p99_hog_ms)
 

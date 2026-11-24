@@ -15,15 +15,20 @@ feedback queue (MLFQ), instead of waiting for it to be demoted like classic MLFQ
 36-CPU machine, 72 CPU hogs running, all tasks scheduled by the tested scheduler, median of 3
 runs. Full tables: [docs/final_ablation.md](docs/final_ablation.md).
 
-| | EEVDF (Linux default) | scx_simple | reactive MLFQ | **BurstSched** (learned + per-CPU) |
+| | EEVDF (Linux default) | scx_simple | reactive MLFQ | **BurstSched** (all features) |
 |---|---|---|---|---|
-| interactive wakeup latency, p99 | 3359 us | 10809 us | 8800 us | **11.1 us** |
-| recovery after a CPU-bound phase, p99 | 4001 us | 12818 us | 21809 us | **17.8 us** |
-| context switches (wakeup test) | 333k | 72k | 84k | **54k** |
-| CPU-hog throughput (bogo ops/s) | 63.4k | 63.5k | 63.5k | 63.6k |
-| fairness between hogs (Jain index) | 0.988 | 1.000 | 1.000 | 0.9999 |
+| interactive wakeup latency, p99 | 4046 us | 10810 us | 10797 us | **12.3 us** |
+| recovery after a CPU-bound phase, p99 | 3997 us | 10802 us | 19000 us | **18.2 us** |
+| request/response service latency, p99 | 3022 us | 11099 us | 7077 us | **338 us** (285 us without per-CPU queues) |
+| context switches (wakeup test) | 339k | 73k | 87k | **56k** |
+| CPU-hog throughput (bogo ops/s) | 63.5k | 63.5k | 63.5k | 63.6k |
+| fairness between hogs (Jain index) | 0.994 | 1.000 | 1.000 | 0.9999 |
+| worst-case wait of a CPU hog | 20 ms | 62 ms | 23 ms | 82 ms (41 ms without per-CPU queues) |
 
-The cost: the longest time a CPU-bound task waits rises to 82 ms (26 ms for plain MLFQ).
+The cost is the last row: BurstSched gives CPU-bound tasks long slices and lets interactive
+tasks jump ahead, so the longest single wait of a CPU hog is 2-4x longer than under EEVDF.
+Every number is measured the same way for every scheduler (worst-case wait by `waitmon`, a
+scheduler-independent tracer).
 
 ![Ablation: p99 latency of every configuration](figures/fig1_ablation.png)
 

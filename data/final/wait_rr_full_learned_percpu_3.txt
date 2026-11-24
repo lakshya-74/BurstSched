@@ -1,0 +1,2 @@
+waitmon: running, Ctrl+C to stop
+waitmon: max_all_ms=82.083 max_hog_ms=82.005 max_work_ms=2.032 max_other_ms=82.083 p99_all_ms=65.536 p99_hog_ms=65.536 n=144059 worst=avahi-daemon/1578
