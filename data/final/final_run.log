@@ -1,88 +1,129 @@
-nohup: ignoring input
-final ablation started Sun Nov 22 05:21:41 AM IST 2026  reps=3
-6.17.0-1033-oem
-36
+final ablation started Tue Nov 24 01:19:57 AM IST 2026  reps=3 workloads=[wakeup phase rr]
+kernel 6.17.0-1033-oem, 36 CPUs
 workload=wakeup mode=full CPUs=36 hogs=72 reps=3 configs=[eevdf scx_simple mlfq ewma ewma_conf ewma_conf_slc full learned learned_percpu] (~35 min)
-rep 1 eevdf          p50=4.5      p99=3633.8   rec_p99=NA       cold=NA        hog_ops/s=64384   ctxsw=338588  jain=0.9932 maxwait=NAms
-rep 1 scx_simple     p50=1798.7   p99=10808.8  rec_p99=NA       cold=NA        hog_ops/s=63758   ctxsw=72280   jain=1.0000 maxwait=NAms
-rep 1 mlfq           p50=750.3    p99=8675.0   rec_p99=NA       cold=NA        hog_ops/s=63541   ctxsw=84186   jain=1.0000 maxwait=28.995ms
-rep 1 ewma           p50=1620.0   p99=13784.4  rec_p99=NA       cold=NA        hog_ops/s=63442   ctxsw=88768   jain=1.0000 maxwait=31.004ms
-rep 1 ewma_conf      p50=83.0     p99=5080.2   rec_p99=NA       cold=NA        hog_ops/s=63579   ctxsw=85777   jain=1.0000 maxwait=24.003ms
-rep 1 ewma_conf_slc  p50=1268.4   p99=10809.5  rec_p99=NA       cold=NA        hog_ops/s=63448   ctxsw=47817   jain=1.0000 maxwait=49.450ms
-rep 1 full           p50=8.8      p99=115.8    rec_p99=NA       cold=NA        hog_ops/s=63656   ctxsw=56385   jain=0.9999 maxwait=41.043ms
-rep 1 learned        p50=10.2     p99=40.6     rec_p99=NA       cold=NA        hog_ops/s=63608   ctxsw=53433   jain=0.9999 maxwait=41.077ms
-rep 1 learned_percpu p50=7.5      p99=11.1     rec_p99=NA       cold=NA        hog_ops/s=63602   ctxsw=53997   jain=0.9999 maxwait=82.020ms
-rep 2 eevdf          p50=5.6      p99=3352.6   rec_p99=NA       cold=NA        hog_ops/s=63401   ctxsw=328329  jain=0.9867 maxwait=NAms
-rep 2 scx_simple     p50=2793.3   p99=10819.8  rec_p99=NA       cold=NA        hog_ops/s=63466   ctxsw=78293   jain=1.0000 maxwait=NAms
-rep 2 mlfq           p50=1789.0   p99=10798.7  rec_p99=NA       cold=NA        hog_ops/s=63487   ctxsw=84756   jain=1.0000 maxwait=24.005ms
-rep 2 ewma           p50=805.8    p99=8793.2   rec_p99=NA       cold=NA        hog_ops/s=63499   ctxsw=85103   jain=1.0000 maxwait=20.248ms
-rep 2 ewma_conf      p50=316.4    p99=5318.5   rec_p99=NA       cold=NA        hog_ops/s=63524   ctxsw=85399   jain=1.0000 maxwait=21.629ms
-rep 2 ewma_conf_slc  p50=2211.2   p99=8214.0   rec_p99=NA       cold=NA        hog_ops/s=63636   ctxsw=42549   jain=1.0000 maxwait=52.002ms
-rep 2 full           p50=9.0      p99=183.6    rec_p99=NA       cold=NA        hog_ops/s=63594   ctxsw=56374   jain=0.9999 maxwait=41.016ms
-rep 2 learned        p50=10.5     p99=38.1     rec_p99=NA       cold=NA        hog_ops/s=63604   ctxsw=52635   jain=0.9999 maxwait=41.105ms
-rep 2 learned_percpu p50=7.6      p99=11.1     rec_p99=NA       cold=NA        hog_ops/s=63530   ctxsw=53815   jain=0.9999 maxwait=82.019ms
-rep 3 eevdf          p50=5.9      p99=3359.3   rec_p99=NA       cold=NA        hog_ops/s=63375   ctxsw=333503  jain=0.9883 maxwait=NAms
-rep 3 scx_simple     p50=802.5    p99=10806.4  rec_p99=NA       cold=NA        hog_ops/s=63507   ctxsw=68508   jain=1.0000 maxwait=NAms
-rep 3 mlfq           p50=809.4    p99=8799.8   rec_p99=NA       cold=NA        hog_ops/s=63536   ctxsw=84441   jain=1.0000 maxwait=26.008ms
-rep 3 ewma           p50=797.7    p99=9808.2   rec_p99=NA       cold=NA        hog_ops/s=63523   ctxsw=86069   jain=1.0000 maxwait=22.002ms
-rep 3 ewma_conf      p50=297.6    p99=3295.9   rec_p99=NA       cold=NA        hog_ops/s=63595   ctxsw=85949   jain=1.0000 maxwait=21.002ms
-rep 3 ewma_conf_slc  p50=1268.1   p99=8266.6   rec_p99=NA       cold=NA        hog_ops/s=63436   ctxsw=43796   jain=1.0000 maxwait=52.010ms
-rep 3 full           p50=8.8      p99=142.4    rec_p99=NA       cold=NA        hog_ops/s=63662   ctxsw=56052   jain=0.9999 maxwait=41.221ms
-rep 3 learned        p50=9.1      p99=30.3     rec_p99=NA       cold=NA        hog_ops/s=63592   ctxsw=53605   jain=0.9999 maxwait=41.045ms
-rep 3 learned_percpu p50=7.4      p99=11.4     rec_p99=NA       cold=NA        hog_ops/s=63602   ctxsw=54880   jain=0.9999 maxwait=82.063ms
+rep 1 eevdf          p50=6.5      p99=4046.1   rec_p99=NA       hog_ops/s=64022   ctxsw=339334  jain=0.9925 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 scx_simple     p50=6803.4   p99=10826.2  rec_p99=NA       hog_ops/s=63265   ctxsw=93381   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 mlfq           p50=173.1    p99=4176.6   rec_p99=NA       hog_ops/s=63546   ctxsw=86261   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 ewma           p50=1794.1   p99=10801.1  rec_p99=NA       hog_ops/s=63530   ctxsw=85680   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 ewma_conf      p50=944.9    p99=7932.5   rec_p99=NA       hog_ops/s=63569   ctxsw=85213   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 ewma_conf_slc  p50=1210.0   p99=8208.2   rec_p99=NA       hog_ops/s=63614   ctxsw=44084   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 full           p50=10.3     p99=191.3    rec_p99=NA       hog_ops/s=63653   ctxsw=56706   jain=0.9999 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 learned        p50=11.1     p99=34.9     rec_p99=NA       hog_ops/s=63663   ctxsw=55000   jain=0.9999 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 learned_percpu p50=8.6      p99=12.6     rec_p99=NA       hog_ops/s=63624   ctxsw=55663   jain=0.9999 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 eevdf          p50=6.8      p99=4331.7   rec_p99=NA       hog_ops/s=63457   ctxsw=338931  jain=0.9950 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 scx_simple     p50=801.3    p99=10803.4  rec_p99=NA       hog_ops/s=63594   ctxsw=67356   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 mlfq           p50=1797.5   p99=10806.5  rec_p99=NA       hog_ops/s=63434   ctxsw=88789   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 ewma           p50=800.9    p99=10799.2  rec_p99=NA       hog_ops/s=63523   ctxsw=86362   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 ewma_conf      p50=890.4    p99=5891.8   rec_p99=NA       hog_ops/s=63595   ctxsw=86001   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 ewma_conf_slc  p50=2799.8   p99=10815.1  rec_p99=NA       hog_ops/s=63413   ctxsw=53651   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 full           p50=10.3     p99=180.4    rec_p99=NA       hog_ops/s=63662   ctxsw=57082   jain=0.9999 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 learned        p50=11.1     p99=33.9     rec_p99=NA       hog_ops/s=63634   ctxsw=55560   jain=0.9999 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 learned_percpu p50=8.5      p99=12.3     rec_p99=NA       hog_ops/s=63656   ctxsw=55884   jain=0.9999 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 eevdf          p50=6.9      p99=3505.7   rec_p99=NA       hog_ops/s=63441   ctxsw=336433  jain=0.9935 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 scx_simple     p50=2785.6   p99=10809.6  rec_p99=NA       hog_ops/s=63466   ctxsw=73408   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 mlfq           p50=805.3    p99=10796.8  rec_p99=NA       hog_ops/s=63514   ctxsw=86519   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 ewma           p50=822.4    p99=10806.7  rec_p99=NA       hog_ops/s=63449   ctxsw=88873   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 ewma_conf      p50=60.6     p99=6054.6   rec_p99=NA       hog_ops/s=63606   ctxsw=85774   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 ewma_conf_slc  p50=1811.8   p99=10810.6  rec_p99=NA       hog_ops/s=63519   ctxsw=48785   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 full           p50=10.0     p99=102.5    rec_p99=NA       hog_ops/s=63663   ctxsw=56483   jain=0.9999 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 learned        p50=11.6     p99=33.5     rec_p99=NA       hog_ops/s=63666   ctxsw=54877   jain=0.9999 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 learned_percpu p50=8.7      p99=12.1     rec_p99=NA       hog_ops/s=63586   ctxsw=55671   jain=0.9998 wait_max(all/hog/work)=NA/NA/NAms
 
 config                           p50_us                  p99_us                  max_us           hog_ops_per_s            ctx_switches                    jain             max_wait_ms                preempts
-eevdf                         5.6 (4-6)      3359.3 (3353-3634)      6359.7 (5356-6634)   63401.5 (63375-64384)333503.0 (328329-338588)    0.9883 (0.987-0.993)                      NA                      NA
-scx_simple            1798.7 (802-2793)   10808.8 (10806-10820)   11808.1 (11805-19320)   63507.0 (63466-63758)   72280.0 (68508-78293)    1.0000 (1.000-1.000)                      NA                      NA
-mlfq                   809.4 (750-1789)     8799.8 (8675-10799)    10805.3 (9676-10822)   63535.6 (63487-63541)   84441.0 (84186-84756)    1.0000 (1.000-1.000)            26.0 (24-29)               0.0 (0-0)
-ewma                   805.8 (798-1620)     9808.2 (8793-13784)   13006.6 (10806-13812)   63498.9 (63442-63523)   86069.0 (85103-88768)    1.0000 (1.000-1.000)            22.0 (20-31)               0.0 (0-0)
-ewma_conf                297.6 (83-316)      5080.2 (3296-5318)      6084.6 (4306-7318)   63578.5 (63524-63595)   85777.0 (85399-85949)    1.0000 (1.000-1.000)            21.6 (21-24)               0.0 (0-0)
-ewma_conf_slc        1268.4 (1268-2211)     8266.6 (8214-10810)    10804.6 (9227-11801)   63447.9 (63436-63636)   43796.0 (42549-47817)    1.0000 (1.000-1.000)            52.0 (49-52)               0.0 (0-0)
-full                          8.8 (9-9)         142.4 (116-184)      3969.5 (2200-6129)   63656.1 (63594-63662)   56374.0 (56052-56385)    0.9999 (1.000-1.000)            41.0 (41-41)   10429.0 (10257-10509)
-learned                     10.2 (9-10)            38.1 (30-41)        286.0 (105-1984)   63604.1 (63592-63608)   53433.0 (52635-53605)    0.9999 (1.000-1.000)            41.1 (41-41)      8622.0 (8522-9022)
-learned_percpu                7.5 (7-8)            11.1 (11-11)        2092.3 (95-2097)   63601.8 (63530-63602)   53997.0 (53815-54880)    0.9999 (1.000-1.000)            82.0 (82-82)      9256.0 (9158-9709)
+eevdf                         6.8 (6-7)      4046.1 (3506-4332)      6348.1 (5048-9506)   63457.4 (63441-64022)338931.0 (336433-339334)    0.9935 (0.993-0.995)                      NA                      NA
+scx_simple            2785.6 (801-6803)   10809.6 (10803-10826)   11799.2 (11154-27392)   63465.6 (63265-63594)   73408.0 (67356-93381)    1.0000 (1.000-1.000)                      NA                      NA
+mlfq                   805.3 (173-1798)    10796.8 (4177-10806)    10811.0 (7170-10815)   63513.8 (63434-63546)   86519.0 (86261-88789)    1.0000 (1.000-1.000)            23.0 (21-29)               0.0 (0-0)
+ewma                   822.4 (801-1794)   10801.1 (10799-10807)   11789.5 (10821-11800)   63523.4 (63449-63530)   86362.0 (85680-88873)    1.0000 (1.000-1.000)            25.6 (24-27)               0.0 (0-0)
+ewma_conf                890.4 (61-945)      6054.6 (5892-7932)      7888.4 (7068-8939)   63594.7 (63569-63606)   85774.0 (85213-86001)    1.0000 (1.000-1.000)            22.0 (21-23)               0.0 (0-0)
+ewma_conf_slc        1811.8 (1210-2800)    10810.6 (8208-10815)    12783.0 (9209-14775)   63518.7 (63413-63614)   48785.0 (44084-53651)    1.0000 (1.000-1.000)            56.0 (52-61)               0.0 (0-0)
+full                       10.3 (10-10)         180.4 (102-191)      5312.0 (2270-5869)   63662.3 (63653-63663)   56706.0 (56483-57082)    0.9999 (1.000-1.000)            41.2 (41-42)   10852.0 (10748-10922)
+learned                    11.1 (11-12)            33.9 (34-35)       1174.9 (190-1250)   63663.0 (63634-63666)   55000.0 (54877-55560)    0.9999 (1.000-1.000)            41.0 (41-41)    10086.0 (9948-10298)
+learned_percpu                8.6 (8-9)            12.3 (12-13)        186.7 (160-1890)   63623.5 (63586-63656)   55671.0 (55663-55884)    0.9999 (1.000-1.000)           82.0 (82-123)   10618.0 (10485-10668)
 
 median (min-max) over repetitions
 workload=phase mode=full CPUs=36 hogs=72 reps=3 configs=[eevdf scx_simple mlfq ewma ewma_conf ewma_conf_slc full learned learned_percpu] (~44 min)
-rep 1 eevdf          p50=5.9      p99=3998.1   rec_p99=4001.0   cold=346.1     hog_ops/s=62902   ctxsw=434679  jain=0.9948 maxwait=NAms
-rep 1 scx_simple     p50=3793.3   p99=10814.3  rec_p99=10798.4  cold=5146.8    hog_ops/s=63037   ctxsw=80412   jain=1.0000 maxwait=NAms
-rep 1 mlfq           p50=800.5    p99=8572.9   rec_p99=21808.7  cold=22230.8   hog_ops/s=63012   ctxsw=109424  jain=1.0000 maxwait=29.005ms
-rep 1 ewma           p50=799.8    p99=10800.1  rec_p99=22002.3  cold=21006.8   hog_ops/s=62917   ctxsw=108842  jain=1.0000 maxwait=28.708ms
-rep 1 ewma_conf      p50=799.9    p99=4800.2   rec_p99=18803.4  cold=20295.4   hog_ops/s=63008   ctxsw=110474  jain=1.0000 maxwait=24.015ms
-rep 1 ewma_conf_slc  p50=1793.9   p99=10804.3  rec_p99=44996.2  cold=44991.1   hog_ops/s=63104   ctxsw=54728   jain=1.0000 maxwait=55.058ms
-rep 1 full           p50=15.9     p99=7780.1   rec_p99=38998.8  cold=38000.7   hog_ops/s=63132   ctxsw=69709   jain=0.9999 maxwait=47.007ms
-rep 1 learned        p50=10.0     p99=31.5     rec_p99=29.2     cold=8.0       hog_ops/s=63124   ctxsw=65411   jain=0.9999 maxwait=51.667ms
-rep 1 learned_percpu p50=7.7      p99=11.6     rec_p99=14.6     cold=8.4       hog_ops/s=63179   ctxsw=67248   jain=0.9998 maxwait=82.096ms
-rep 2 eevdf          p50=5.8      p99=3003.8   rec_p99=4000.5   cold=442.3     hog_ops/s=62924   ctxsw=439484  jain=0.9919 maxwait=NAms
-rep 2 scx_simple     p50=6798.4   p99=10828.1  rec_p99=14802.6  cold=9983.4    hog_ops/s=63037   ctxsw=80231   jain=1.0000 maxwait=NAms
-rep 2 mlfq           p50=800.6    p99=6796.4   rec_p99=23813.7  cold=23238.3   hog_ops/s=63052   ctxsw=109650  jain=1.0000 maxwait=29.061ms
-rep 2 ewma           p50=805.4    p99=10802.7  rec_p99=22002.8  cold=18997.7   hog_ops/s=62954   ctxsw=108692  jain=1.0000 maxwait=29.070ms
-rep 2 ewma_conf      p50=801.8    p99=3799.7   rec_p99=18803.4  cold=17252.2   hog_ops/s=63025   ctxsw=110741  jain=1.0000 maxwait=24.268ms
-rep 2 ewma_conf_slc  p50=1787.7   p99=10802.3  rec_p99=48795.1  cold=49004.5   hog_ops/s=63080   ctxsw=55445   jain=1.0000 maxwait=53.074ms
-rep 2 full           p50=15.8     p99=6787.3   rec_p99=41002.0  cold=35558.3   hog_ops/s=63089   ctxsw=68302   jain=0.9999 maxwait=47.005ms
-rep 2 learned        p50=9.5      p99=30.4     rec_p99=27.4     cold=10.6      hog_ops/s=63078   ctxsw=66198   jain=0.9999 maxwait=50.002ms
-rep 2 learned_percpu p50=7.7      p99=15.7     rec_p99=22.3     cold=12.1      hog_ops/s=63162   ctxsw=66535   jain=0.9998 maxwait=120.001ms
-rep 3 eevdf          p50=5.7      p99=3001.7   rec_p99=3001.1   cold=662.8     hog_ops/s=62929   ctxsw=433073  jain=0.9950 maxwait=NAms
-rep 3 scx_simple     p50=1794.2   p99=10811.1  rec_p99=12818.0  cold=3336.3    hog_ops/s=63008   ctxsw=80744   jain=1.0000 maxwait=NAms
-rep 3 mlfq           p50=801.6    p99=6800.4   rec_p99=19001.7  cold=17085.0   hog_ops/s=62986   ctxsw=109253  jain=1.0000 maxwait=28.767ms
-rep 3 ewma           p50=800.1    p99=6800.3   rec_p99=22021.3  cold=17064.0   hog_ops/s=63007   ctxsw=109886  jain=1.0000 maxwait=28.075ms
-rep 3 ewma_conf      p50=800.8    p99=3805.6   rec_p99=18829.4  cold=20997.3   hog_ops/s=63030   ctxsw=110618  jain=1.0000 maxwait=22.019ms
-rep 3 ewma_conf_slc  p50=1797.8   p99=10804.7  rec_p99=45001.3  cold=47023.9   hog_ops/s=63070   ctxsw=54644   jain=1.0000 maxwait=55.006ms
-rep 3 full           p50=15.6     p99=5394.6   rec_p99=39012.9  cold=32185.5   hog_ops/s=63087   ctxsw=68773   jain=0.9999 maxwait=47.012ms
-rep 3 learned        p50=10.0     p99=31.7     rec_p99=32.3     cold=8.1       hog_ops/s=63074   ctxsw=65572   jain=0.9999 maxwait=48.012ms
-rep 3 learned_percpu p50=8.0      p99=14.9     rec_p99=17.8     cold=13.1      hog_ops/s=63140   ctxsw=66120   jain=0.9998 maxwait=82.198ms
+rep 1 eevdf          p50=6.6      p99=3797.5   rec_p99=3582.2   hog_ops/s=62940   ctxsw=442665  jain=0.9935 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 scx_simple     p50=8797.5   p99=10829.2  rec_p99=10802.1  hog_ops/s=62992   ctxsw=80885   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 mlfq           p50=801.5    p99=4795.3   rec_p99=17891.9  hog_ops/s=63010   ctxsw=111331  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 ewma           p50=802.4    p99=6789.9   rec_p99=18797.0  hog_ops/s=63021   ctxsw=110605  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 ewma_conf      p50=799.3    p99=6796.9   rec_p99=17804.1  hog_ops/s=63059   ctxsw=111342  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 ewma_conf_slc  p50=1799.8   p99=10801.6  rec_p99=42845.5  hog_ops/s=63094   ctxsw=55242   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 full           p50=17.7     p99=5417.8   rec_p99=40598.6  hog_ops/s=63157   ctxsw=69103   jain=0.9999 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 learned        p50=11.0     p99=36.0     rec_p99=89.2     hog_ops/s=63084   ctxsw=69233   jain=0.9999 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 learned_percpu p50=8.7      p99=15.3     rec_p99=19.4     hog_ops/s=63191   ctxsw=69895   jain=0.9998 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 eevdf          p50=6.7      p99=3003.0   rec_p99=3997.1   hog_ops/s=62957   ctxsw=444126  jain=0.9936 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 scx_simple     p50=1001.1   p99=10807.0  rec_p99=8814.5   hog_ops/s=63047   ctxsw=81427   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 mlfq           p50=800.8    p99=4811.2   rec_p99=18999.6  hog_ops/s=63025   ctxsw=111338  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 ewma           p50=798.5    p99=5798.9   rec_p99=21808.7  hog_ops/s=63057   ctxsw=110892  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 ewma_conf      p50=799.4    p99=4799.5   rec_p99=22001.0  hog_ops/s=63039   ctxsw=111652  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 ewma_conf_slc  p50=1786.3   p99=8797.0   rec_p99=47794.0  hog_ops/s=63094   ctxsw=56873   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 full           p50=17.7     p99=5809.1   rec_p99=39003.6  hog_ops/s=63104   ctxsw=69158   jain=0.9999 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 learned        p50=10.6     p99=33.7     rec_p99=34.6     hog_ops/s=63028   ctxsw=70440   jain=0.9999 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 learned_percpu p50=8.8      p99=18.5     rec_p99=17.1     hog_ops/s=63216   ctxsw=69345   jain=0.9998 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 eevdf          p50=6.7      p99=3003.3   rec_p99=3999.0   hog_ops/s=62990   ctxsw=434563  jain=0.9841 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 scx_simple     p50=7728.9   p99=10819.5  rec_p99=10818.1  hog_ops/s=63059   ctxsw=81146   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 mlfq           p50=806.6    p99=10797.0  rec_p99=22034.5  hog_ops/s=62970   ctxsw=108822  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 ewma           p50=799.5    p99=6708.3   rec_p99=22806.7  hog_ops/s=63013   ctxsw=110947  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 ewma_conf      p50=799.3    p99=4797.0   rec_p99=18002.8  hog_ops/s=63052   ctxsw=111387  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 ewma_conf_slc  p50=1794.3   p99=7797.6   rec_p99=46815.4  hog_ops/s=63034   ctxsw=56692   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 full           p50=18.0     p99=6797.1   rec_p99=35964.1  hog_ops/s=63097   ctxsw=69360   jain=0.9999 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 learned        p50=10.6     p99=34.1     rec_p99=28.1     hog_ops/s=63096   ctxsw=69192   jain=0.9999 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 learned_percpu p50=8.9      p99=18.2     rec_p99=18.2     hog_ops/s=63207   ctxsw=69384   jain=0.9998 wait_max(all/hog/work)=NA/NA/NAms
 
 config                           p50_us                  p99_us                  max_us              rec_p50_us              rec_p99_us                 cold_us           hog_ops_per_s            ctx_switches                    jain             max_wait_ms                preempts
-eevdf                         5.8 (6-6)      3003.8 (3002-3998)      4661.5 (4592-5348)               6.4 (6-7)      4000.5 (3001-4001)         442.3 (346-663)   62924.0 (62902-62929)434679.0 (433073-439484)    0.9948 (0.992-0.995)                      NA                      NA
-scx_simple           3793.3 (1794-6798)   10814.3 (10811-10828)   12818.0 (11808-14803)      1046.9 (1002-3799)   12818.0 (10798-14803)      5146.8 (3336-9983)   63036.8 (63008-63037)   80412.0 (80231-80744)    1.0000 (1.000-1.000)                      NA                      NA
-mlfq                    800.6 (800-802)      6800.4 (6796-8573)   22230.8 (19002-23814)         800.5 (799-801)   21808.7 (19002-23814)   22230.8 (17085-23238)   63012.2 (62986-63052)109424.0 (109253-109650)    1.0000 (1.000-1.000)            29.0 (29-29)               0.0 (0-0)
-ewma                    800.1 (800-805)    10800.1 (6800-10803)   22002.8 (22002-22021)         799.3 (799-805)   22002.8 (22002-22021)   18997.7 (17064-21007)   62953.6 (62917-63007)108842.0 (108692-109886)    1.0000 (1.000-1.000)            28.7 (28-29)               0.0 (0-0)
-ewma_conf               800.8 (800-802)      3805.6 (3800-4800)   20295.4 (18803-20997)         801.0 (801-801)   18803.4 (18803-18829)   20295.4 (17252-20997)   63024.5 (63008-63030)110618.0 (110474-110741)    1.0000 (1.000-1.000)            24.0 (22-24)               0.0 (0-0)
-ewma_conf_slc        1793.9 (1788-1798)   10804.3 (10802-10805)   47023.9 (44996-49004)        870.6 (811-1790)   45001.3 (44996-48795)   47023.9 (44991-49004)   63080.3 (63070-63104)   54728.0 (54644-55445)    1.0000 (1.000-1.000)            55.0 (53-55)               0.0 (0-0)
-full                       15.8 (16-16)      6787.3 (5395-7780)   39012.9 (38999-41002)         810.3 (802-966)   39012.9 (38999-41002)   35558.3 (32186-38001)   63089.2 (63087-63132)   68773.0 (68302-69709)    0.9999 (1.000-1.000)            47.0 (47-47)   11000.0 (10654-11145)
-learned                    10.0 (10-10)            31.5 (30-32)           85.9 (77-179)            10.9 (10-11)            29.2 (27-32)              8.1 (8-11)   63077.7 (63074-63124)   65572.0 (65411-66198)    0.9999 (1.000-1.000)            50.0 (48-52)     9783.0 (9697-10019)
-learned_percpu                7.7 (8-8)            14.9 (12-16)            28.3 (24-30)               8.9 (9-9)            17.8 (15-22)             12.1 (8-13)   63161.8 (63140-63179)   66535.0 (66120-67248)    0.9998 (1.000-1.000)           82.2 (82-120)    10023.0 (9958-10325)
+eevdf                         6.7 (7-7)      3003.3 (3003-3798)      5000.8 (4801-5002)               7.2 (7-7)      3997.1 (3582-3999)            10.0 (10-12)   62956.5 (62940-62990)442665.0 (434563-444126)    0.9935 (0.984-0.994)                      NA                      NA
+scx_simple           7728.9 (1001-8798)   10819.5 (10807-10829)   10897.2 (10839-11813)       1801.1 (998-2800)    10802.1 (8814-10818)     8963.6 (1974-10037)   63046.7 (62992-63059)   81146.0 (80885-81427)    1.0000 (1.000-1.000)                      NA                      NA
+mlfq                    801.5 (801-807)     4811.2 (4795-10797)   18999.6 (17892-23001)         800.2 (800-802)   18999.6 (17892-22034)   18046.7 (17093-23001)   63010.5 (62970-63025)111331.0 (108822-111338)    1.0000 (1.000-1.000)            29.0 (29-29)               0.0 (0-0)
+ewma                    799.5 (798-802)      6708.3 (5799-6790)   21808.7 (18971-24029)         799.3 (798-801)   21808.7 (18797-22807)   19893.4 (18971-24029)   63020.6 (63013-63057)110892.0 (110605-110947)    1.0000 (1.000-1.000)            26.1 (26-28)               0.0 (0-0)
+ewma_conf               799.3 (799-799)      4799.5 (4797-6797)   22005.4 (18005-22995)         799.1 (799-801)   18002.8 (17804-22001)   22005.4 (18005-22995)   63051.9 (63039-63059)111387.0 (111342-111652)    1.0000 (1.000-1.000)            23.2 (23-25)               0.0 (0-0)
+ewma_conf_slc        1794.3 (1786-1800)     8797.0 (7798-10802)   47794.0 (46815-51067)        908.7 (812-1721)   46815.4 (42846-47794)   42002.1 (41998-51067)   63094.0 (63034-63094)   56692.0 (55242-56873)    1.0000 (1.000-1.000)            52.0 (51-54)               0.0 (0-0)
+full                       17.7 (18-18)      5809.1 (5418-6797)   39003.6 (35964-40599)        856.3 (804-1792)   39003.6 (35964-40599)   33999.3 (32549-36938)   63103.8 (63097-63157)   69158.0 (69103-69360)    0.9999 (1.000-1.000)            47.0 (47-50)   11412.0 (11273-11452)
+learned                    10.6 (11-11)            34.1 (34-36)           88.8 (82-113)            12.2 (11-12)            34.6 (28-89)            25.1 (20-26)   63084.1 (63028-63096)   69233.0 (69192-70440)    0.9999 (1.000-1.000)            50.0 (49-51)   12005.0 (11686-12591)
+learned_percpu                8.8 (9-9)            18.2 (15-18)      2006.6 (1573-4999)             9.8 (10-10)            18.2 (17-19)        2006.6 (11-4999)   63206.7 (63191-63216)   69384.0 (69345-69895)    0.9998 (1.000-1.000)           82.2 (82-123)   11982.0 (11900-12069)
 
 median (min-max) over repetitions
-final ablation finished Sun Nov 22 05:59:03 AM IST 2026
-summaries: results/summary_wakeup_full.csv results/summary_phase_full.csv
+workload=rr mode=full CPUs=36 hogs=72 reps=3 configs=[eevdf scx_simple mlfq ewma ewma_conf ewma_conf_slc full learned learned_percpu] (~35 min)
+rep 1 eevdf          p50=119.9    p99=3015.1   rec_p99=NA       hog_ops/s=63246   ctxsw=420149  jain=0.9854 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 scx_simple     p50=3338.8   p99=11090.2  rec_p99=NA       hog_ops/s=63505   ctxsw=103115  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 mlfq           p50=1847.9   p99=7077.4   rec_p99=NA       hog_ops/s=63431   ctxsw=132119  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 ewma           p50=1683.1   p99=7049.4   rec_p99=NA       hog_ops/s=63407   ctxsw=144265  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 ewma_conf      p50=1998.6   p99=7033.2   rec_p99=NA       hog_ops/s=63468   ctxsw=135976  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 ewma_conf_slc  p50=2176.4   p99=16015.5  rec_p99=NA       hog_ops/s=63530   ctxsw=93849   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 full           p50=1033.8   p99=6965.4   rec_p99=NA       hog_ops/s=63513   ctxsw=139519  jain=0.9998 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 learned        p50=160.2    p99=290.0    rec_p99=NA       hog_ops/s=63483   ctxsw=142886  jain=0.9997 wait_max(all/hog/work)=NA/NA/NAms
+rep 1 learned_percpu p50=136.4    p99=308.7    rec_p99=NA       hog_ops/s=63489   ctxsw=143023  jain=0.9998 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 eevdf          p50=120.3    p99=3108.2   rec_p99=NA       hog_ops/s=63339   ctxsw=428897  jain=0.9897 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 scx_simple     p50=4760.8   p99=11099.3  rec_p99=NA       hog_ops/s=63493   ctxsw=98460   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 mlfq           p50=11995.8  p99=12124.5  rec_p99=NA       hog_ops/s=63451   ctxsw=100460  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 ewma           p50=1648.3   p99=7031.4   rec_p99=NA       hog_ops/s=63452   ctxsw=137749  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 ewma_conf      p50=2008.6   p99=7018.0   rec_p99=NA       hog_ops/s=63449   ctxsw=139425  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 ewma_conf_slc  p50=1316.8   p99=8892.1   rec_p99=NA       hog_ops/s=63561   ctxsw=81802   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 full           p50=1063.8   p99=6021.6   rec_p99=NA       hog_ops/s=63461   ctxsw=140937  jain=0.9997 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 learned        p50=132.4    p99=225.7    rec_p99=NA       hog_ops/s=63525   ctxsw=144971  jain=0.9997 wait_max(all/hog/work)=NA/NA/NAms
+rep 2 learned_percpu p50=148.4    p99=338.5    rec_p99=NA       hog_ops/s=63476   ctxsw=142109  jain=0.9999 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 eevdf          p50=120.1    p99=3021.9   rec_p99=NA       hog_ops/s=63376   ctxsw=418186  jain=0.9918 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 scx_simple     p50=5707.2   p99=16071.0  rec_p99=NA       hog_ops/s=63532   ctxsw=94010   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 mlfq           p50=2091.8   p99=7029.7   rec_p99=NA       hog_ops/s=63400   ctxsw=137862  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 ewma           p50=6979.8   p99=12051.2  rec_p99=NA       hog_ops/s=63437   ctxsw=115204  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 ewma_conf      p50=2094.0   p99=7052.4   rec_p99=NA       hog_ops/s=63482   ctxsw=134578  jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 ewma_conf_slc  p50=1972.3   p99=16048.0  rec_p99=NA       hog_ops/s=63497   ctxsw=87905   jain=1.0000 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 full           p50=1084.0   p99=7009.3   rec_p99=NA       hog_ops/s=63460   ctxsw=137578  jain=0.9998 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 learned        p50=151.6    p99=285.3    rec_p99=NA       hog_ops/s=63514   ctxsw=143016  jain=0.9998 wait_max(all/hog/work)=NA/NA/NAms
+rep 3 learned_percpu p50=139.3    p99=337.7    rec_p99=NA       hog_ops/s=63502   ctxsw=143686  jain=0.9999 wait_max(all/hog/work)=NA/NA/NAms
+
+config                           p50_us                  p99_us                  max_us           hog_ops_per_s            ctx_switches                    jain             max_wait_ms                preempts
+eevdf                   120.1 (120-120)      3021.9 (3015-3108)      6882.5 (6595-7116)   63339.0 (63246-63376)420149.0 (418186-428897)    0.9897 (0.985-0.992)                      NA                      NA
+scx_simple           4760.8 (3339-5707)   11099.3 (11090-16071)   13165.1 (11640-16951)   63504.8 (63493-63532)  98460.0 (94010-103115)    1.0000 (1.000-1.000)                      NA                      NA
+mlfq                2091.8 (1848-11996)     7077.4 (7030-12124)     9189.6 (7997-12400)   63430.9 (63400-63451)132119.0 (100460-137862)    1.0000 (1.000-1.000)            27.2 (26-31)               0.0 (0-0)
+ewma                 1683.1 (1648-6980)     7049.4 (7031-12051)    11122.3 (7277-12509)   63437.1 (63407-63452)137749.0 (115204-144265)    1.0000 (1.000-1.000)            28.0 (25-28)               0.0 (0-0)
+ewma_conf            2008.6 (1999-2094)      7033.2 (7018-7052)      7811.3 (7159-8691)   63467.8 (63449-63482)135976.0 (134578-139425)    1.0000 (1.000-1.000)            25.0 (24-25)               0.0 (0-0)
+ewma_conf_slc        1972.3 (1317-2176)    16015.5 (8892-16048)    16387.0 (8933-16522)   63530.3 (63497-63561)   87905.0 (81802-93849)    1.0000 (1.000-1.000)            58.0 (53-60)               0.0 (0-0)
+full                 1063.8 (1034-1084)      6965.4 (6022-7009)   14986.1 (12983-15040)   63460.5 (63460-63513)139519.0 (137578-140937)    0.9998 (1.000-1.000)            41.0 (41-41)   30512.0 (29949-30765)
+learned                 151.6 (132-160)         285.3 (226-290)       1783.3 (807-2814)   63514.2 (63483-63525)143016.0 (142886-144971)    0.9997 (1.000-1.000)            41.0 (41-41)   30402.0 (30286-32792)
+learned_percpu          139.3 (136-148)         337.7 (309-338)       1801.8 (934-2352)   63488.8 (63476-63502)143023.0 (142109-143686)    0.9999 (1.000-1.000)           82.1 (82-123)   29845.0 (28461-29986)
+
+median (min-max) over repetitions
+final ablation finished Tue Nov 24 02:15:13 AM IST 2026
+summary: results/summary_wakeup_full.csv
+summary: results/summary_phase_full.csv
+summary: results/summary_rr_full.csv
