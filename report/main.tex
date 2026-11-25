@@ -18,16 +18,25 @@
 \newcommand{\code}[1]{\texttt{\small #1}}
 \newcommand{\tc}[1]{{\ttfamily #1}}   % code inside figures, keeps the figure font size
 \renewcommand{\arraystretch}{1.12}
+\raggedbottom   % no stretched gaps between paragraphs to fill a column
 
 \begin{document}
 
 \title{BurstSched: Placing Tasks by Predicted CPU Burst\\in a sched\_ext Multilevel Feedback Queue}
 
-% Fill in the bracketed fields.
 \author{\IEEEauthorblockN{Lakshya Patidar}
-\IEEEauthorblockA{Department of Computer Science and Engineering\\
-{[College name], [City]}\\
-{[email]}}}
+\IEEEauthorblockA{\textit{Dept. of Computer Science and Engineering}\\
+\textit{Indian Institute of Information Technology}\\
+\textit{Design and Manufacturing Kurnool}\\
+Kurnool, India\\
+524CS0008@iiitk.ac.in}
+\and
+\IEEEauthorblockN{Aniket Patil}
+\IEEEauthorblockA{\textit{Dept. of Computer Science and Engineering}\\
+\textit{Indian Institute of Information Technology}\\
+\textit{Design and Manufacturing Kurnool}\\
+Kurnool, India\\
+124CS0081@iiitk.ac.in}}
 
 \maketitle
 
@@ -686,6 +695,11 @@ behavior from the task's own recent history. The main open problems are a confid
 reasons about queue levels instead of relative error, and the longer worst-case wait of
 CPU-bound tasks.
 
+\section*{Acknowledgment}
+
+All experiments ran on Linux workstations of the Department of Computer Science and
+Engineering, IIITDM Kurnool. We thank the department for access to them.
+
 \section*{Code and data}
 
 Source code, the trained model, the measurement data and the scripts that produce every figure
@@ -693,7 +707,7 @@ and table are available at \url{https://github.com/lakshya-74/BurstSched}.
 
 % ---------------------------------------------------------------------------
 % balance the two columns of the last page
-\IEEEtriggeratref{11}
+\IEEEtriggeratref{9}
 \begin{thebibliography}{99}
 
 \bibitem{silberschatz}
