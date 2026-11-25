@@ -3,6 +3,12 @@ build/
 *.o
 __pycache__/
 
+# LaTeX build by-products (report/BurstSched_report.pdf is the kept output)
+report/*.aux
+report/*.log
+report/*.out
+report/main.pdf
+
 # raw experiment output written by the scripts (kept locally);
 # the curated, published data lives in data/
 results/
