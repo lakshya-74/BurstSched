@@ -2,6 +2,7 @@
 build/
 *.o
 __pycache__/
+.venv/
 
 # LaTeX build by-products (report/BurstSched_report.pdf is the kept output)
 report/*.aux

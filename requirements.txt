@@ -1,0 +1,5 @@
+# Optional Python dependencies for analysis/ and predictor/train.py.
+# The scheduler build and analysis/summarize.py do not need these packages.
+numpy
+matplotlib
+scikit-learn
